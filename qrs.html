@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QR codes</title>
+<style>
+body{margin:0;font-family:"Segoe UI",sans-serif;height:100vh;overflow:auto;background:radial-gradient(circle at top,#e8d5ff,#c9a7ff,#8a4ef0);}
+.container{max-width:1100px;margin:40px auto;padding:0;border-radius:20px;background:transparent;text-align:center;position:relative;z-index:2}
+.card{background:linear-gradient(135deg,#ff9ecb,#ff65b8);border-radius:28px;padding:30px;display:flex;align-items:center;justify-content:center;box-shadow:0 40px 100px rgba(255,120,180,0.12);}
+h1{color:#6b1f7b}
+.qr-grid{display:flex;gap:40px;flex-wrap:nowrap;justify-content:center;align-items:center;margin-top:18px}
+.qr-box{background:transparent;padding:6px;border-radius:12px;min-width:240px;display:flex;align-items:center;justify-content:center}
+.qr-box img{width:420px;height:420px;max-width:40vw;display:block;margin:0 auto;border-radius:12px;opacity:1;background:transparent;padding:6px;transition:transform .2s;}
+.qr-box.web{background:linear-gradient(135deg, rgba(255,200,230,0.28), rgba(200,230,255,0.18)); box-shadow:0 24px 60px rgba(255,200,230,0.12); border-radius:20px; padding:20px; border:1px solid rgba(255,255,255,0.06)}
+.qr-box.insta{background:linear-gradient(135deg, rgba(200,230,255,0.22), rgba(220,180,240,0.22)); box-shadow:0 24px 60px rgba(180,200,255,0.1); border-radius:20px; padding:20px; border:1px solid rgba(255,255,255,0.06)}
+.qr-box img:hover{transform:scale(1.03);box-shadow:0 20px 50px rgba(0,0,0,0.08);}
+.qr-actions{display:flex;gap:8px;justify-content:center;margin-top:10px}
+button, a.btn{padding:10px 14px;border-radius:10px;border:none;background:linear-gradient(135deg,#f7c1f7,#d18df2);color:#fff;text-decoration:none}
+.back{background:#eee;color:#333}
+/* Floating bottles background */
+.bottles-container{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.bottle{position:absolute;font-size:50px;opacity:.12;transform-origin:center;will-change:transform;}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="card">
+    <div class="qr-grid" style="position:relative; z-index:2;">
+    <div class="qr-box web" style="display:flex;flex-direction:column;align-items:center;">
+      <h3 style="margin:6px 0;color:#6b1f7b">موقع الويب</h3>
+      <img id="qrWeb" src="" alt="QR Web">
+    </div>
+    <div class="qr-box insta" style="display:flex;flex-direction:column;align-items:center;">
+      <h3 style="margin:6px 0;color:#6b1f7b">إنستجرام</h3>
+      <img id="qrInsta" src="" alt="QR Insta">
+    </div>
+  </div>
+  
+  </div>
+   
+   <!-- background bottles -->
+  <div class="bottles-container" id="bottles"></div>
+
+  <!-- Back to app button -->
+  <button id="backToAppBtn" title="العودة" style="position:fixed; top:18px; left:18px; z-index:9999; padding:10px 14px; border-radius:12px; border:none; background:linear-gradient(135deg,#fff,#ffd6f0); box-shadow:0 8px 20px rgba(0,0,0,0.12); cursor:pointer">⬅️ العودة</button>
+</div>
+<script>
+const webUrl = 'https://yuossf-dev.github.io/SkinCare1/';
+const instaUrl = 'https://www.instagram.com/yazeed_abula.wi?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==';
+function setQR(imgId,dlId,url){
+  const src = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&data='+encodeURIComponent(url);
+  const img = document.getElementById(imgId); const dl = document.getElementById(dlId);
+  if(img) img.src = src; if(dl) dl.href = src;
+}
+setQR('qrWeb','dlWeb',webUrl);
+setQR('qrInsta','dlInsta',instaUrl);
+
+// floating bottles script follows below// floating bottles script follows below
+
+// floating bottles background (reusing animation from main page)
+(function(){
+  const container = document.getElementById('bottles');
+  if(!container) return;
+  const count = 18;
+  const emojis = ['🧴','🫧'];
+  const bottles = [];
+  for(let i=0;i<count;i++){
+    const b = document.createElement('div'); b.className='bottle'; b.innerText = emojis[Math.floor(Math.random()*emojis.length)];
+    b.style.fontSize = (Math.random()*40+60)+'px';
+    b.style.left = Math.random()*100+'vw';
+    b.style.top = Math.random()*100+'vh';
+    b.dataset.vx = (Math.random()*0.12+0.02)*(Math.random()<0.5?-1:1);
+    b.dataset.vy = (Math.random()*0.12+0.02)*(Math.random()<0.5?-1:1);
+    container.appendChild(b); bottles.push(b);
+  }
+  let mx=0,my=0; document.addEventListener('mousemove', e=>{ mx=e.clientX; my=e.clientY; });
+  function animate(){ bottles.forEach(b=>{
+    let x = parseFloat(b.style.left), y = parseFloat(b.style.top);
+    x += parseFloat(b.dataset.vx) + (mx/8000);
+    y += parseFloat(b.dataset.vy) + (my/8000);
+    if(x>100) x=-10; if(x<-10) x=100; if(y>100) y=-10; if(y<-10) y=100;
+    b.style.left = x+'vw'; b.style.top = y+'vh'; b.style.transform = 'rotate('+(x*1.2)+'deg)';
+  }); requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+// back button handler with a simple bubble-like fade transition
+const backBtn = document.getElementById('backToAppBtn');
+if(backBtn){
+  backBtn.addEventListener('click', ()=>{
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.background = 'radial-gradient(circle at 20% 20%, rgba(255,200,230,0.12), transparent 20%), radial-gradient(circle at 80% 80%, rgba(200,230,255,0.12), transparent 20%), rgba(0,0,0,0)';
+    overlay.style.zIndex = 10001;
+    overlay.style.pointerEvents = 'none';
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity .45s ease';
+    document.body.appendChild(overlay);
+    requestAnimationFrame(()=> overlay.style.opacity = '1');
+    setTimeout(()=>{ window.location.href = 'index.html'; }, 600);
+  });
+}
+
+</script>
+</body>
+</html>

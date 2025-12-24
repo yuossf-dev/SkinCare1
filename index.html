@@ -188,6 +188,7 @@ button:active { transform:scale(1.1); box-shadow:0 15px 25px rgba(156,79,161,0.6
 <div id="topLeftBtns">
   <button id="qrBtn" title="فتح الموقع (QR)">🔗</button>
   <button id="instaBtn" title="Instagram">📸</button>
+  <button id="qrsPageBtn" title="صفحة QRs">🧾</button>
 </div>
 
 <!-- QR modal -->
@@ -513,7 +514,9 @@ setInterval(()=>{
 const qrUrl = 'https://yuossf-dev.github.io/SkinCare1/';
 const instaUrl = 'https://www.instagram.com/';
 const qrBtn = document.getElementById('qrBtn'); if(qrBtn) qrBtn.addEventListener('click', ()=> showQRModal(qrUrl));
-const instaBtn = document.getElementById('instaBtn'); if(instaBtn) instaBtn.addEventListener('click', ()=> window.open(instaUrl,'_blank'));
+const instaProfileUrl = 'https://www.instagram.com/yazeed_abula.wi?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==';
+const instaBtn = document.getElementById('instaBtn'); if(instaBtn) instaBtn.addEventListener('click', ()=> showQRModal(instaProfileUrl));
+const qrsPageBtn = document.getElementById('qrsPageBtn'); if(qrsPageBtn) qrsPageBtn.addEventListener('click', ()=> window.location.href='qrs.html');
 
 // QR modal functions
 function showQRModal(url){
