@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Skin Care Quiz</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  margin:0;
+  font-family:"Segoe UI", sans-serif;
+  height:100vh;
+  overflow:hidden;
+  background: radial-gradient(circle at top, #ffe0f0, #f2c1f7, #d8a6f2);
+  cursor:none;
+  transition: background 0.5s;
+}
+
+.container {
+  position: relative;
+  z-index: 10;
+  width: 90%;
+  max-width: 500px;
+  margin: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 35px;
+  border-radius: 28px;
+  background: rgba(255,255,255,0.45);
+  backdrop-filter: blur(25px);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.12);
+  text-align: center;
+  transition: opacity 0.5s;
+}
+
+h1 { color:#6b1f7b; margin-bottom:25px; }
+
+.option {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  padding:14px;
+  margin-bottom:12px;
+  border-radius:16px;
+  background:rgba(255,255,255,0.7);
+  cursor:pointer;
+  transition:0.3s;
+  position:relative;
+}
+
+.option:hover { transform: scale(1.03); }
+
+.option input { appearance:none; width:18px; height:18px; border-radius:50%; border:2px solid #9c4fa1; }
+
+.option input:checked { background: radial-gradient(circle, #9c4fa1,#6b1f7b); }
+
+.option .mini-bottle { font-size:28px; cursor:pointer; }
+
+.cream-blob {
+  position:absolute;
+  width:14px;
+  height:14px;
+  background: radial-gradient(circle,#fff0ff,#f7c1f7);
+  border-radius:50%;
+  opacity:0.9;
+  animation: floatCream 0.8s forwards;
+}
+
+@keyframes floatCream {
+  0% { transform:translate(0,0) scale(0.5); opacity:1; }
+  50% { transform:translate(-6px,-25px) scale(1); opacity:0.9; }
+  100% { transform:translate(-12px,-50px) scale(0.2); opacity:0; }
+}
+
+input[type=text], textarea {
+  margin-top:10px;
+  width:100%;
+  padding:12px;
+  border-radius:15px;
+  border:2px solid #9c4fa1;
+  font-size:16px;
+  display:none;
+}
+
+textarea { height:120px; resize:none; }
+
+button {
+  margin-top:20px;
+  padding:12px 20px;
+  border:none;
+  border-radius:25px;
+  background: linear-gradient(135deg,#f7c1f7,#d18df2);
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+  box-shadow:0 10px 20px rgba(156,79,161,0.4);
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+
+button:active { transform:scale(1.1); box-shadow:0 15px 25px rgba(156,79,161,0.6); }
+
+#backBtn { background: linear-gradient(135deg,#d18df2,#f7c1f7); margin-right:10px; }
+
+.bottle {
+  position:absolute;
+  font-size:50px;
+  user-select:none;
+  pointer-events:none;
+  z-index:5;
+  will-change: transform;
+  opacity:0.8;
+}
+
+#cursor { position:fixed; width:40px; height:40px; pointer-events:none; font-size:40px; transform:translate(-50%,-50%); z-index:20; }
+
+#bubbleTransition {
+  position: fixed;
+  top:0; left:0;
+  width:100vw; height:100vh;
+  pointer-events:none;
+  z-index:30;
+  display:none;
+  overflow:hidden;
+  background: rgba(255,182,193,0.2);
+}
+
+.bubble {
+  position:absolute;
+  border-radius:50%;
+  opacity:0.6;
+  animation:bubbleRise 1s forwards ease-out;
+  background: radial-gradient(circle, rgba(255,182,193,0.6), rgba(218,112,214,0.4));
+}
+
+@keyframes bubbleRise {
+  0% { transform: scale(0.3) translateY(0); opacity:0.7; }
+  50% { opacity:0.5; }
+  100% { transform: scale(1.2) translateY(-400px); opacity:0; }
+}
+
+/* Toast popup */
+.toast{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:28px;
+  background: linear-gradient(135deg,#ff8fd6,#b25cff);
+  color:#fff;
+  padding:12px 18px;
+  border-radius:20px;
+  box-shadow:0 12px 30px rgba(178,92,255,0.25);
+  z-index:9999;
+  font-size:16px;
+  opacity:0;
+  animation:toastIn .25s forwards;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* Restart floating bottle button */
+#restartBtn{
+  position:fixed;
+  top:18px;
+  right:18px;
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#fff,#ffe6fb);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.12);
+  border:3px solid rgba(178,92,255,0.12);
+  z-index:9999;
+  cursor:pointer;
+}
+#restartBtn:hover{transform:scale(1.08)}
+.restart-cream{position:absolute;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle,#fff0ff,#f7c1f7);pointer-events:none;opacity:0.95;animation:restartCream 900ms ease-out forwards}
+@keyframes restartCream{0%{transform:translateY(0) scale(.6);opacity:1}70%{transform:translateY(-36px) scale(1);opacity:.9}100%{transform:translateY(-60px) scale(.2);opacity:0}}
+</style>
+</head>
+<body>
+<button id="restartBtn" title="ابدأ من جديد">🧴</button>
+<div id="cursor">🧼</div>
+<div id="bubbleTransition"></div>
+<script>
+// Ensure initial state: show name screen only
+document.addEventListener('DOMContentLoaded', ()=>{
+  try{ document.querySelectorAll('.container').forEach(c=>c.style.display='none'); }catch(e){}
+  const s0 = document.getElementById('step0'); if(s0) s0.style.display='block';
+});
+</script>
+
+<!-- Step 1 -->
+<!-- Step 0: name entry -->
+<div class="container" id="step0">
+  <h1>مرحباً! اكتب اسمك</h1>
+  <input type="text" id="nameField" placeholder="اكتب اسمك" style="display:block; margin:18px auto 0; padding:12px; font-size:16px; border-radius:12px; border:2px solid #9c4fa1; width:82%;" />
+  <div style="display:flex; justify-content:center; margin-top:18px;"><button id="nameNextBtn">ابدأ</button></div>
+</div>
+
+<!-- Greeting screen -->
+<div class="container" id="step1_greet" style="display:none; opacity:0;">
+  <div id="greetText" style="text-align:center; color:#6b1f7b; font-size:18px;"></div>
+  <div style="display:flex; justify-content:center; margin-top:18px;"><button id="startQuestionsBtn">خلّيني أجاوب</button></div>
+</div>
+
+<div class="container" id="step1" style="display:none; opacity:0;">
+  <h1>اختبار نوع البشرة</h1>
+
+  <label class="option"><input type="radio" name="skin"> عادية <span class="mini-bottle">🧴</span></label>
+  <label class="option"><input type="radio" name="skin"> دهنية <span class="mini-bottle">🧴</span></label>
+  <label class="option"><input type="radio" name="skin"> جافة <span class="mini-bottle">🧴</span></label>
+  <label class="option"><input type="radio" name="skin"> حساسة <span class="mini-bottle">🧴</span></label>
+  <label class="option" id="otherOption"><input type="radio" name="skin"> غير ذلك <span class="mini-bottle">🧴</span></label>
+
+  <input type="text" id="customInput" placeholder="اكتب نوع البشرة الخاص بك هنا...">
+  <div style="display:flex; justify-content:center;"><button id="backBtn" style="display:none;">رجوع</button><button id="nextBtn">متابعة</button></div>
+</div>
+
+<!-- Step 2 -->
+<div class="container" id="step2" style="display:none; opacity:0;">
+  <h1>احكيلي مشاكل بشرتك ولا تستحي 😅</h1>
+  <textarea id="problemInput" placeholder="اكتب هنا المشاكل التي تعاني منها..."></textarea>
+  <button id="noProblemBtn">لا يوجد لدي مشاكل بشرة</button>
+  <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;"><button id="backBtn2">رجوع</button><button id="nextBtn2">متابعة</button></div>
+</div>
+
+<!-- Step 3 -->
+<div class="container" id="step3" style="display:none; opacity:0;">
+  <h1>شو نوع البشرة اللي بتحاول توصله؟</h1>
+  <input type="text" id="targetSkin" placeholder="اكتب نوع البشرة المرغوب">
+  <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;"><button id="backBtn3">رجوع</button><button id="nextBtn3">متابعة</button></div>
+</div>
+
+<!-- Step 4 -->
+<div class="container" id="step4" style="display:none; opacity:0;">
+  <h1>هل بتستخدم منتجات عناية بالبشرة؟ وشو هي؟</h1>
+  <input type="text" id="usedProducts" placeholder="اكتب المنتجات التي تستخدمها">
+  <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;"><button id="backBtn4">رجوع</button><button id="finishBtn">انتهى</button></div>
+</div>
+
+<!-- Step 5: contact -->
+<div class="container" id="step5" style="display:none; opacity:0;">
+  <h1>اكتب رقمك للتواصل</h1>
+  <input type="text" id="phoneInput" placeholder="اكتب رقمك">
+  <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;"><button id="backBtn5">رجوع</button><button id="submitBtn">ارسال</button></div>
+</div>
+
+<!-- End screen -->
+<div class="container" id="step_end" style="display:none; opacity:0;">
+  <h1 id="endTitle" style="color:#6b1f7b;">شكراً!</h1>
+  <div id="endMessage" style="white-space:pre-line; margin-top:12px; font-size:16px; color:#5a2d82;"></div>
+  <div style="display:flex; justify-content:center; gap:10px; margin-top:18px;"><button id="endRestart">ابدأ من جديد</button></div>
+</div>
+
+<div id="bottles"></div>
+
+<script>
+// ===== Bottles floating =====
+const bottleCount = 15;
+const bottleEmojis = ["🧴","🫧"];
+const bottlesContainer = document.getElementById("bottles");
+const bottles = [];
+for(let i=0;i<bottleCount;i++){
+  const b = document.createElement("div");
+  b.className="bottle";
+  b.innerText=bottleEmojis[Math.floor(Math.random()*bottleEmojis.length)];
+  b.style.fontSize=`${Math.random()*40+40}px`;
+  b.style.left=`${Math.random()*100}vw`;
+  b.style.top=`${Math.random()*100}vh`;
+  b.dataset.speedX=(Math.random()*0.05+0.01)*(Math.random()<0.5?-1:1);
+  b.dataset.speedY=(Math.random()*0.05+0.01)*(Math.random()<0.5?-1:1);
+  bottlesContainer.appendChild(b);
+  bottles.push(b);
+}
+let mouseX=0, mouseY=0;
+document.addEventListener("mousemove", e=>{ mouseX=e.clientX; mouseY=e.clientY; });
+function animate(){ bottles.forEach(b=>{ let x=parseFloat(b.style.left),y=parseFloat(b.style.top); x+=parseFloat(b.dataset.speedX)+(mouseX/8000); y+=parseFloat(b.dataset.speedY)+(mouseY/8000); if(x>100)x=-10; if(x<-10)x=100; if(y>100)y=-10; if(y<-10)y=100; b.style.left=x+"vw"; b.style.top=y+"vh"; b.style.transform=`rotate(${x*1.2}deg)`; }); requestAnimationFrame(animate); }
+animate();
+
+// ===== Mini cream =====
+document.querySelectorAll('.mini-bottle').forEach(bottle=>{
+  bottle.addEventListener('click', e=>{
+    e.stopPropagation();
+    for(let i=0;i<5;i++){
+      const blob=document.createElement('div');
+      blob.className='cream-blob';
+      blob.style.left=`${bottle.offsetWidth/2}px`;
+      blob.style.top='0px';
+      bottle.appendChild(blob);
+      setTimeout(()=>blob.remove(),800);
+    }
+  });
+});
+
+// ===== Custom input =====
+document.getElementById("otherOption").addEventListener("click", ()=>{document.getElementById("customInput").style.display="block"});
+
+// ===== Soap cursor =====
+const cursor=document.getElementById("cursor");
+document.addEventListener("mousemove", e=>{ cursor.style.left=e.clientX+"px"; cursor.style.top=e.clientY+"px";
+  const bubble=document.createElement("div"); bubble.className="cream-blob"; bubble.style.left=`${e.clientX}px`; bubble.style.top=`${e.clientY}px`; bubble.style.width=`${Math.random()*15+10}px`; bubble.style.height=bubble.style.width; bubble.style.animationDuration="1s"; document.body.appendChild(bubble); setTimeout(()=>bubble.remove(),1000);
+});
+document.addEventListener("click", e=>{for(let i=0;i<5;i++){const bubble=document.createElement("div"); bubble.className="cream-blob"; bubble.style.left=`${e.clientX}px`; bubble.style.top=`${e.clientY}px`; bubble.style.width=`${Math.random()*20+10}px`; bubble.style.height=bubble.style.width; bubble.style.animationDuration="1s"; document.body.appendChild(bubble); setTimeout(()=>bubble.remove(),1000);}});
+
+// ===== Bubble transition =====
+function bubbleTransitionEffect(callback){
+  const bubbleTransition=document.getElementById("bubbleTransition");
+  bubbleTransition.style.display="block";
+  for(let i=0;i<20;i++){
+    const b=document.createElement("div"); b.className="bubble"; const size=Math.random()*100+50; b.style.width=b.style.height=`${size}px`; b.style.left=`${Math.random()*100}vw`; b.style.top=`${Math.random()*100}vh`; bubbleTransition.appendChild(b); setTimeout(()=>b.remove(),1000);
+  }
+  setTimeout(()=>{bubbleTransition.style.display="none"; callback();},800);
+}
+
+// friendly toast popup
+function showToast(msg, duration=2500){
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t);
+  setTimeout(()=>{ t.style.opacity=0; t.style.transform='translateX(-50%) translateY(10px)'; setTimeout(()=>t.remove(),300); }, duration);
+}
+
+// ===== Navigation =====
+function showStep(hide, show){ hide.style.display="none"; show.style.display="block"; show.style.opacity=1; }
+
+// name next button: go to greeting
+document.getElementById('nameNextBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('nameField').value.trim();
+  if(!name){ showToast('شكلك نسيت تجاوب — اكتب اسمك'); return; }
+  // build greeting
+  const greet = `أهلاً يا ${name}!\nجاوب/ي على الأسئلة القصيرة التالية حتى أقدر أقدملك توصيات شخصية تساعدك توصل لبشرة أحلامك.`;
+  document.getElementById('greetText').innerText = greet;
+  bubbleTransitionEffect(()=>{ showStep(document.getElementById('step0'), document.getElementById('step1_greet')); });
+});
+
+// start questions from greeting
+document.getElementById('startQuestionsBtn').addEventListener('click', ()=>{
+  bubbleTransitionEffect(()=>{ showStep(document.getElementById('step1_greet'), document.getElementById('step1')); });
+});
+
+// original nextBtn: move from skin to problems
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  const radios=document.querySelectorAll('input[name="skin"]'); let selected=false; radios.forEach(r=>{if(r.checked) selected=true;}); if(!selected){showToast("شكلك نسيت تجاوب — اختر نوع بشرتك 😉"); return;}
+  bubbleTransitionEffect(()=>{ showStep(document.getElementById("step1"),document.getElementById("step2")); document.getElementById("problemInput").style.display="block"; });
+});
+document.getElementById("nextBtn2").addEventListener("click", ()=>{
+  const problems = document.getElementById("problemInput").value.trim();
+  if(!problems){ showToast("شكلك نسيت تجاوب — اكتب مشاكل بشرتك"); return; }
+  bubbleTransitionEffect(()=>{ showStep(document.getElementById("step2"),document.getElementById("step3")); document.getElementById("targetSkin").style.display="block"; });
+});
+document.getElementById("nextBtn3").addEventListener("click", ()=>{
+  const target = document.getElementById("targetSkin").value.trim();
+  if(!target){ showToast("شكلك نسيت تجاوب — اكتب نوع البشرة اللي بتحلم فيها"); return; }
+  bubbleTransitionEffect(()=>{ showStep(document.getElementById("step3"),document.getElementById("step4")); document.getElementById("usedProducts").style.display="block"; });
+});
+
+// ===== Back buttons =====
+document.getElementById("backBtn").addEventListener("click", ()=>showStep(document.getElementById("step2"),document.getElementById("step1")));
+document.getElementById("backBtn2").addEventListener("click", ()=>showStep(document.getElementById("step3"),document.getElementById("step2")));
+document.getElementById("backBtn3").addEventListener("click", ()=>showStep(document.getElementById("step4"),document.getElementById("step3")));
+document.getElementById("backBtn4").addEventListener("click", ()=>showStep(document.getElementById("step4"),document.getElementById("step3")));
+
+// ===== No problems button =====
+document.getElementById("noProblemBtn").addEventListener("click", ()=>{
+  const confirmDiv=document.createElement("div");
+  confirmDiv.style.position="fixed"; confirmDiv.style.top="50%"; confirmDiv.style.left="50%"; confirmDiv.style.transform="translate(-50%,-50%)";
+  confirmDiv.style.padding="25px 30px"; confirmDiv.style.background="rgba(255,255,255,0.95)"; confirmDiv.style.borderRadius="20px"; confirmDiv.style.boxShadow="0 10px 25px rgba(0,0,0,0.2)"; confirmDiv.style.textAlign="center"; confirmDiv.style.zIndex=50;
+  const _name = (document.getElementById('nameField') && document.getElementById('nameField').value.trim()) ? document.getElementById('nameField').value.trim() : '';
+  const title = _name ? `متأكد يا ${_name}؟ 😉` : 'متأكد؟ 😉';
+  confirmDiv.innerHTML=`<p style="font-size:18px;">${title}</p><div style="margin-top:15px;"><button id="yesBtn" style="margin-right:10px;">👍 نعم</button><button id="noBtn" style="margin-left:10px;">❌ لا</button><span id="wink" style="font-size:28px; margin-left:10px; cursor:pointer;">😉</span></div>`;
+  document.body.appendChild(confirmDiv);
+  document.getElementById("yesBtn").addEventListener("click", ()=>{ 
+    // set 'no problems' and go to next step
+    document.getElementById('problemInput').value = 'لا يوجد مشاكل بشرة';
+    showToast("جميل! 👍 تم التسجيل كـ 'لا يوجد مشاكل' — ننتقل للفكرة التالية 😊");
+    confirmDiv.remove();
+    bubbleTransitionEffect(()=>{ showStep(document.getElementById('step2'), document.getElementById('step3')); document.getElementById('targetSkin').style.display='block'; });
+});
+  document.getElementById("noBtn").addEventListener("click", ()=>confirmDiv.remove());
+  document.getElementById("wink").addEventListener("click", ()=>showToast("😉 هههه مرحباً بك!"));
+});
+</script>
+
+<!-- Firebase submit handler -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC67RriaM5nAI5VoDBCgvuW-bNnkbs6igE",
+  authDomain: "skincare-78919.firebaseapp.com",
+  projectId: "skincare-78919",
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function submitToFirestore(){
+  // get selected skin
+  const radios = document.querySelectorAll('input[name="skin"]');
+  let skin = '';
+  radios.forEach(r=>{ if(r.checked){ skin = r.parentElement ? r.parentElement.textContent.replace('🧴','').trim() : r.value; }});
+  const custom = document.getElementById('customInput').value.trim();
+  if(!skin && custom) skin = custom;
+
+  const problems = document.getElementById('problemInput').value || '';
+  const target = document.getElementById('targetSkin').value || '';
+  const products = document.getElementById('usedProducts').value || '';
+
+  const name = (document.getElementById('nameField') && document.getElementById('nameField').value) ? document.getElementById('nameField').value.trim() : '';
+  const phone = (document.getElementById('phoneInput') && document.getElementById('phoneInput').value) ? document.getElementById('phoneInput').value.trim() : '';
+  const data = { skin, custom, problems, target, products, name, phone, date: new Date().toISOString() };
+
+  try{
+    await addDoc(collection(db,'skinQuiz'), data);
+    showToast('تم الإرسال 💜 — شكرًا!');
+  }catch(e){
+    console.error(e);
+    showToast('حدث خطأ أثناء الإرسال: ' + (e.message || e));
+  }
+}
+
+// attach to finish button
+document.getElementById('finishBtn').addEventListener('click', ()=>{
+  // validation up to products, then go to contact step
+  const radios=document.querySelectorAll('input[name="skin"]'); let selected=false; radios.forEach(r=>{if(r.checked) selected=true;});
+  const custom = document.getElementById('customInput').value.trim();
+  if(!selected && !custom) { showToast('شكلك نسيت تجاوب — اختر نوع بشرتك أو اكتبه'); return; }
+  const problems = document.getElementById('problemInput').value.trim();
+  if(!problems){ showToast('شكلك نسيت تجاوب — اكتب مشاكل بشرتك'); return; }
+  const target = document.getElementById('targetSkin').value.trim();
+  if(!target){ showToast('شكلك نسيت تجاوب — اكتب نوع البشرة اللي بتحلم فيها'); return; }
+  const products = document.getElementById('usedProducts').value.trim();
+  if(!products){ showToast('شكلك نسيت تجاوب — اكتب المنتجات اللي بتستخدمها'); return; }
+
+  // go to contact step
+  bubbleTransitionEffect(()=>{ showStep(document.getElementById('step4'), document.getElementById('step5')); document.getElementById('phoneInput').style.display='block'; });
+});
+
+// back from contact
+document.getElementById('backBtn5').addEventListener('click', ()=>{ showStep(document.getElementById('step5'), document.getElementById('step4')); });
+
+// submit from contact step
+document.getElementById('submitBtn').addEventListener('click', async ()=>{
+  const phone = document.getElementById('phoneInput').value.trim();
+  if(!phone){ showToast('الرجاء كتابة رقمك'); return; }
+  bubbleTransitionEffect(async ()=>{ 
+    await submitToFirestore();
+    // show end screen with personalized message
+    const name = (document.getElementById('nameField') && document.getElementById('nameField').value) ? document.getElementById('nameField').value.trim() : '';
+    const time = new Date().toLocaleString('ar-EG', {hour12:false});
+    const msg = name ? `شكراً يا ${name}!\nراح أتواصل معك قريبًا وأقدّم لك توصيات شخصية.\nتم الإرسال: ${time}` : `شكراً!\nراح أتواصل معك قريبًا وأقدّم لك توصيات شخصية.\nتم الإرسال: ${time}`;
+    document.querySelectorAll('.container').forEach(c=>c.style.display='none');
+    const end = document.getElementById('step_end');
+    if(end){
+      document.getElementById('endMessage').innerText = msg;
+      end.style.display = 'block';
+      end.style.opacity = 1;
+      end.style.zIndex = 9998;
+      // ensure visible
+      window.scrollTo(0,0);
+    } else {
+      showToast('تم الإرسال — شكراً!');
+    }
+  });
+});
+
+// restart from end screen
+document.getElementById('endRestart').addEventListener('click', ()=>{
+  document.querySelectorAll('.container').forEach(c=>c.style.display='none');
+  document.getElementById('step0').style.display='block';
+  document.querySelectorAll('input[type="text"], textarea').forEach(i=>i.value='');
+  document.querySelectorAll('input[type="radio"]').forEach(r=>r.checked=false);
+  showToast('يلا نبدأ من جديد!');
+});
+
+// Restart button behavior (can restart anytime)
+document.getElementById('restartBtn').addEventListener('click', ()=>{
+  // little cream pop
+  for(let i=0;i<6;i++){ const b=document.createElement('div'); b.className='restart-cream'; b.style.left=(20+Math.random()*16)+'px'; b.style.top=(10+Math.random()*16)+'px'; document.getElementById('restartBtn').appendChild(b); setTimeout(()=>b.remove(),900); }
+  bubbleTransitionEffect(()=>{ document.querySelectorAll('.container').forEach(c=>c.style.display='none'); document.getElementById('step0').style.display='block'; document.querySelectorAll('input[type="text"], textarea').forEach(i=>i.value=''); document.querySelectorAll('input[type="radio"]').forEach(r=>r.checked=false); showToast('يلا نبدأ من جديد!'); });
+});
+
+// subtle periodic cream around restart button
+setInterval(()=>{
+  const btn = document.getElementById('restartBtn');
+  if(!btn) return;
+  const blob=document.createElement('div'); blob.className='restart-cream'; blob.style.left=(10+Math.random()*36)+'px'; blob.style.top=(10+Math.random()*36)+'px'; btn.appendChild(blob); setTimeout(()=>blob.remove(),1000);
+},2200);
+
+</script>
+</body>
+</html>
